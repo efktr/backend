@@ -4,7 +4,6 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const app = express();
 
-
 ///////////////////////
 // Components loader function (used to initialize all components on startup and share globals!)
 ///////////////////////
@@ -65,7 +64,7 @@ const database = context.component('.').module('database');
 
 const api = context.component('.').module('router');
 
-app.use('/', api);
+app.use('/', context.router);
 
 
 //////////////////

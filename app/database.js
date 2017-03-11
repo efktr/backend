@@ -42,6 +42,20 @@ if(process.env.PGURI){
     }
 }
 
+let database = pgp(connectionString);
+
+// Test database connection, else exit
+database
+    .one('SELECT 1 = 1')
+    .then(() => {
+        // success; Do nothing
+    })
+    .catch(error => {
+        // error;
+        console.error(error);
+        process.exit(1);
+    });
+
 module.exports = (context) => {
-    return context.database = pgp(connectionString);
+    return context.database = database;
 };
