@@ -21,7 +21,7 @@ module.exports = (context) => {
                                           FROM search         \
                                           WHERE text ~* \'\^$1:value\'    \
                                           ORDER BY text\
-                                          LIMIT 5',
+                                          LIMIT 4;',
                 request.query.q)
                 .then(function (data) {
                     result.status(200).send(data);
