@@ -31,5 +31,34 @@ module.exports = (context) => {
                     return next(err);
                 });
         },
+
+        adrBasedOnDrugbankId(request, result, next) {
+            return context.database.any('\
+            SELECT \
+            umlsdic.name, \
+                adrsj.range, \
+                adrsj.support \
+            FROM umls_dictionary AS umlsdic \
+            JOIN ( \
+                SELECT DISTINCT \
+            adr.umls_id, \
+                adr.range, \
+                adr.support \
+            FROM adverse_drug_reactions AS adr \
+            JOIN ( \
+                SELECT ptd.pubchem_id \
+            FROM pubchem_to_drugbank AS ptd \
+            WHERE ptd.drugbank_id = $1) AS ptdj \
+            ON ptdj.pubchem_id = adr.pubchem_id \
+        ) AS adrsj \
+            ON adrsj.umls_id = umlsdic.umls_id;',
+                request.params.drugbankId)
+                .then(function (data) {
+                    result.status(200).send(data);
+                })
+                .catch(function (err) {
+                    return next(err);
+                });
+        }
     }
 };

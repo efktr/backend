@@ -2,7 +2,12 @@ module.exports = (context) => {
     return {
         search(request, result, next) {
             return context.database.any('\
-            SELECT reference, name, type , json_agg("text") AS synonyms, count("text") AS support \
+            SELECT \
+                reference,\
+                name,\
+                type,\
+                json_agg("text") AS synonyms,\
+                count("text") AS support \
             FROM search \
             WHERE text ~* \'\\m$1:value\' \
             GROUP BY reference, name, type \
