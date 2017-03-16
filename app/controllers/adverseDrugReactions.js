@@ -51,7 +51,8 @@ module.exports = (context) => {
             WHERE ptd.drugbank_id = $1) AS ptdj \
             ON ptdj.pubchem_id = adr.pubchem_id \
         ) AS adrsj \
-            ON adrsj.umls_id = umlsdic.umls_id;',
+            ON adrsj.umls_id = umlsdic.umls_id\
+            ORDER BY adrsj.range DESC;',
                 request.params.drugbankId)
                 .then(function (data) {
                     result.status(200).send(data);
