@@ -7,8 +7,10 @@ const pgp = require('pg-promise')({
 var connectionString = "";
 
 if(process.env.PGURI){
+    console.log('Going with PGURI');
     connectionString = process.env.PGURI
 } else {
+    console.log('Building from pieces');
     connectionString += "postgres://";
 
     const databaseConfiguration = {
@@ -42,6 +44,7 @@ if(process.env.PGURI){
     }
 }
 
+console.log(`Connecting to ${connectionString}`);
 let database = pgp(connectionString);
 
 // Test database connection, else exit
