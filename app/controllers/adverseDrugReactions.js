@@ -60,6 +60,6 @@ module.exports = (context) => {
                 .catch(function (err) {
                     return next(err);
                 });
-        }
+        },
     }
 };
