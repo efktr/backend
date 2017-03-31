@@ -1,6 +1,6 @@
 module.exports = (context) => {
     context.router
-        .get('/', (request, result, next) => {
+        .get('/', (request, result) => {
             result.status(200)
                 .json({
                     status: 'success',

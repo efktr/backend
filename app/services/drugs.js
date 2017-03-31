@@ -3,5 +3,6 @@ module.exports = (context) => {
     let drugs = context.component('controllers').module('drugs');
 
     context.router
-        .get('/drug/:drugbankId', drugs.getDrugByDrugbankId);
+        .get('/drug/:drugbankId', drugs.getDrugByDrugbankId)
+        .get('/drugs/:umlsId', drugs.getDrugsByADR);
 };

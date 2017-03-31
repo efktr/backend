@@ -61,5 +61,23 @@ module.exports = (context) => {
                     return next(err);
                 });
         },
+
+        getADRBasedOnUmlsId(request, result, next) {
+            return context.database.one('\
+            SELECT \
+                umls_id AS umlsId,\
+                name AS name \
+            FROM \
+                umls_dictionary \
+            WHERE \
+                umls_id = $1;',
+                request.params.umlsId)
+                .then(function (data) {
+                    result.status(200).send(data);
+                })
+                .catch(function (err) {
+                    return next(err);
+                });
+        }
     }
 };

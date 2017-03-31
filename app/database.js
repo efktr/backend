@@ -1,7 +1,17 @@
 const promise = require('bluebird');
 const pgp = require('pg-promise')({
     // Initialization Options
-    promiseLib: promise
+    promiseLib: promise,
+    error: function (error, e) {
+        if (e.cn) {
+            // A connection-related error;
+            //
+            // Connections are reported back with the password hashed,
+            // for safe errors logging, without exposing passwords.
+            console.log("CN:", e.cn);
+            console.log("EVENT:", error.message || error);
+        }
+    }
 });
 
 var connectionString = "";
@@ -51,7 +61,7 @@ let database = pgp(connectionString);
 database
     .one('SELECT 1 = 1')
     .then(() => {
-        // success; Do nothing
+        console.log('Connection to the database succeeded!');
     })
     .catch(error => {
         // error;
