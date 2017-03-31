@@ -62,7 +62,8 @@ module.exports = (context) => {
             WHERE \
             umls_id = $1 \
         ) AS pbc ON pbc.pubchem_id = pctd.pubchem_id \
-        ) AS joint ON joint.drugbank_id = db.drugbank_id;',
+        ) AS joint ON joint.drugbank_id = db.drugbank_id\
+        ORDER BY joint.range DESC;;',
                 request.params.umlsId)
                 .then(function (data) {
                     result.status(200).send(data);
