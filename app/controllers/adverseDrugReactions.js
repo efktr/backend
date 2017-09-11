@@ -33,26 +33,27 @@ module.exports = (context) => {
         },
 
         adrBasedOnDrugbankId(request, result, next) {
-            return context.database.any('SELECT dict.umls_id, dict.name, adrs.lower, adrs.higher    \
-            FROM umls_dictionary as dict    \
-            JOIN (  \
-                SELECT DISTINCT \
-            umls_id,    \
-                lower,  \
-                higher  \
-            FROM stitch_to_umls \
-            WHERE stitch_id = ( \
-                SELECT stitch_id    \
-            FROM stitch_to_drugbank \
-            WHERE drugbank_id = (   \
-                SELECT drugbank_id  \
-            FROM drugbank_id_mapping    \
-            WHERE mapping = $1   \
-            LIMIT 1 \
-        )   \
-            LIMIT 1)    \
-        ) AS adrs   \
-            ON adrs.umls_id = dict.umls_id;',
+            return context.database.any(`
+                SELECT dict.umls_id, dict.name, adrs.lower, adrs.higher
+                FROM umls_dictionary as dict
+                  JOIN (
+                         SELECT DISTINCT
+                           umls_id,
+                           AVG(lower) AS lower,
+                           AVG(higher) AS higher
+                         FROM stitch_to_umls
+                         WHERE stitch_id = (
+                           SELECT stitch_id
+                           FROM stitch_to_drugbank
+                           WHERE drugbank_id = (
+                             SELECT drugbank_id
+                             FROM drugbank_id_mapping
+                             WHERE mapping = $1
+                             LIMIT 1
+                           )
+                           LIMIT 1) GROUP BY umls_id
+                       ) AS adrs
+                    ON adrs.umls_id = dict.umls_id;`,
                 request.params.drugbankId)
                 .then(function (data) {
                     result.status(200).send(data);
