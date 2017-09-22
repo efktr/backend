@@ -4,13 +4,13 @@ module.exports = (context) => {
             return context.database.any('\
             SELECT \
                 reference,\
+                sum(case when "type" = \'adr\' then 1 else 0 end) as adr, \
                 name,\
-                type,\
                 json_agg("text") AS synonyms,\
                 count("text") AS support \
             FROM search \
             WHERE text ~* \'\\m$1:value\' \
-            GROUP BY reference, name, type \
+            GROUP BY reference, name \
             ORDER BY support DESC;',
                 request.query.q)
                 .then(function (data) {
