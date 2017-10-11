@@ -79,6 +79,27 @@ module.exports = (context) => {
                 .catch(function (err) {
                     return next(err);
                 });
+        },
+
+        getADRBasedOnName(request, result, next) {
+            return context.database.any('\
+            SELECT \
+                umls_id AS umlsId,\
+                name AS name \
+            FROM \
+                umls_dictionary \
+            WHERE \
+                name ~* \'\\m$1:value\'\
+            LIMIT 5;',
+                request.query.q)
+                .then(function (data) {
+                    console.log(data);
+                    result.status(200).send(data);
+                })
+                .catch(function (err) {
+                    console.error(err);
+                    return next(err);
+                });
         }
     }
 };
