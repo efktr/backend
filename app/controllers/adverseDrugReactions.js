@@ -1,3 +1,5 @@
+const pgp = require('pg-promise');
+
 module.exports = (context) => {
     return {
         highConfidenceAdr(request, result, next) {
@@ -55,6 +57,48 @@ module.exports = (context) => {
                        ) AS adrs
                     ON adrs.umls_id = dict.umls_id;`,
                 request.params.drugbankId)
+                .then(function (data) {
+                    result.status(200).send(data);
+                })
+                .catch(function (err) {
+                    return next(err);
+                });
+        },
+
+        adrBasedOnDrugbankIds(request, result, next) {
+
+            let adrs = request.query.q;
+
+            if(adrs === undefined){
+                return next("No query passed!");
+            } else if(adrs.constructor === Array){
+                // do nothing, it's fine
+            } else if(typeof  adrs === "string"){
+                adrs = [adrs]
+            }
+            return context.database.any(`
+                SELECT dict.umls_id, dict.name, adrs.lower, adrs.higher, adrs.count
+                FROM umls_dictionary as dict
+                  JOIN (
+                         SELECT DISTINCT
+                           umls_id,
+                           AVG(lower) AS lower,
+                           AVG(higher) AS higher,
+                      	   COUNT(*) AS count
+                         FROM stitch_to_umls
+                         WHERE stitch_id = ANY(
+                           SELECT stitch_id
+                           FROM stitch_to_drugbank
+                           WHERE drugbank_id = ANY(
+                             SELECT drugbank_id
+                             FROM drugbank_id_mapping
+                             WHERE mapping = any($1)
+                           )
+                         ) GROUP BY umls_id
+                       ) AS adrs
+                    ON adrs.umls_id = dict.umls_id
+                    ORDER BY adrs.count DESC;
+                    `, [adrs])
                 .then(function (data) {
                     result.status(200).send(data);
                 })
